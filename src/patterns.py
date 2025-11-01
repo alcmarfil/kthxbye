@@ -103,7 +103,7 @@ PATTERNS = {
     # STRUCTURE (catch-all)
     "LINEBREAK": re.compile(r"^\n$"),        
     "EXCLAMATION": re.compile(r"^!$"),      
-    "TEXT": re.compile(r"^[^\n\r]*$"),       # catch-all, must be last
+    "TEXT": re.compile(r"^[^\n\r]*$"),      
   
 }
 
