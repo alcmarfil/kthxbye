@@ -51,12 +51,12 @@ PATTERNS = {
     "GIMMEH": re.compile(r"\bGIMMEH\b"),
 
     # Switch/Case
-    "WTF": re.compile(r"\bWTF\?\b"),
+    "WTF": re.compile(r"WTF\?"),
     "OMG": re.compile(r"\bOMG\b"),
     "OMGWTF": re.compile(r"\bOMGWTF\b"),
 
     # Conditionals
-    "O_RLY": re.compile(r"\bO RLY\?\b"),
+    "O_RLY": re.compile(r"O RLY\?"),
     "YA_RLY": re.compile(r"\bYA RLY\b"),
     "MEBBE": re.compile(r"\bMEBBE\b"),
     "NO_WAI": re.compile(r"\bNO WAI\b"),
