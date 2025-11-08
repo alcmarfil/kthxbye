@@ -1,7 +1,7 @@
 #file reading/file output
 
 #run this file to see tokens printed out from sample_code.lol hehe
-from tokenizer import tokenize
+from lexer.tokenizer import tokenize
 import json
 from pathlib import Path
 
