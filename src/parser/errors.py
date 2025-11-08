@@ -1,5 +1,5 @@
-# ParseError and utils
 
+# ParseError class to handle parsing errors
 class ParseError(Exception):
     def __init__(self, message, token):
         self.message = message

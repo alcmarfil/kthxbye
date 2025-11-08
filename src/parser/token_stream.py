@@ -2,6 +2,7 @@
 
 from parser.errors import ParseError
 
+# TokenStream class to iterate through tokens
 class TokenStream:
     def __init__(self, tokens):
         self.tokens = tokens # list of tokens
@@ -16,19 +17,19 @@ class TokenStream:
     
     def peek(self, offset=1):
         # look ahead without consuming
-        index = self.position + offset
-        if index < len(self.tokens):
+        index = self.position + offset # index of the token to look ahead 
+        if index < len(self.tokens): # if index is within the list
             return self.tokens[index]
         return None
 
     def advance(self):
         # move to the next token
         if self.position < len(self.tokens):
-            self.position += 1
+            self.position += 1 # increment position
 
     def expect(self, expected_type):
         # consume and return a token of expected type, or raise error
-        token = self.current()
+        token = self.current() 
         if token["type"] != expected_type:
             raise ParseError(f"Expected {expected_type}, got {token['type']}", token)
         self.advance()
@@ -36,7 +37,7 @@ class TokenStream:
 
     def match(self, expected_type):
         # if current token matches, consume it and return True
-        if self.current()["type"] == expected_type:
+        if self.current()["type"] == expected_type: # if current token matches expected type
             self.advance()
             return True
         return False

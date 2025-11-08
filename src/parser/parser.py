@@ -2,6 +2,7 @@ from parser.token_stream import TokenStream
 from parser.ast_nodes import create_node
 from parser.errors import ParseError
 
+# reserved keywords that cannot be used as variable names
 RESERVED_KEYWORDS = {
             "HAI", "KTHXBYE", "I_HAS_A", "ITZ", "VISIBLE", "GIMMEH",
             "R", "IS_NOW_A", "MAEK", "A", "O_RLY", "YA_RLY", "MEBBE",
@@ -13,13 +14,14 @@ RESERVED_KEYWORDS = {
             "QUOSHUNT_OF", "MOD_OF", "BIGGR_OF", "SMALLR_OF"
         }
 
+# Parser class to parse the tokens into an AST
 class Parser:
     def __init__(self, tokens):
         self.tokens = TokenStream(tokens)
         self.errors = []
 
     def parse(self):
-        """Main entry point"""
+        # try to parse the program, if an error occurs, return the error message
         try:
             return self.parse_program()
         except ParseError as e:
@@ -32,10 +34,9 @@ class Parser:
         
     # <program> ::= [<function_list>] HAI <linebreak> <wazzup_section> <statement_list> <linebreak> KTHXBYE [<function_list>]
     def parse_program(self):
-        # Functions can be defined before HAI (per spec)
+        # functions can be defined before HAI (per spec)
         pre_program_functions = self.parse_function_list()
         
-        # Program must start with HAI (after optional functions)
         start = self.tokens.current()
         self.tokens.expect("HAI")
 
@@ -43,16 +44,15 @@ class Parser:
         if self.tokens.current()["type"] == "LINEBREAK":
             self.tokens.advance()
 
-        # Prelude: functions after HAI but before WAZZUP
+        # prelude: functions after HAI but before WAZZUP
         prelude = self.parse_function_list()
 
-        # Wazzup section (optional)
+        # wazzup section (optional)
         wazzup = self.parse_wazzup_section()
 
-        # Main statements
+        # main statements
         statements = self.parse_statement_list()
 
-        # optional final linebreak
         if self.tokens.current()["type"] == "LINEBREAK":
             self.tokens.advance()
 
@@ -70,6 +70,7 @@ class Parser:
                 self.tokens.current()
             )
 
+        # return the program node
         return create_node(
             "Program",
             prelude=pre_program_functions + prelude,  # functions before and after HAI (before WAZZUP)
@@ -80,11 +81,12 @@ class Parser:
         )
 
 
+    
     def parse_function_list(self):
         functions = []
-        while self.tokens.current()["type"] == "HOW_IZ_I":
-            func = self.parse_function_def()
-            functions.append(func)
+        while self.tokens.current()["type"] == "HOW_IZ_I": # while the current token is a function definition
+            func = self.parse_function_def() # parse the function definition
+            functions.append(func) # add the function to the list
             if self.tokens.current()["type"] == "LINEBREAK":
                 self.tokens.advance()
         return functions
@@ -97,15 +99,15 @@ class Parser:
             if self.tokens.current()["type"] == "LINEBREAK":
                 self.tokens.advance()
 
-            decls = self.parse_declaration_list()
+            decls = self.parse_declaration_list() # parse the declaration list
 
             if self.tokens.current()["type"] == "LINEBREAK":
                 self.tokens.advance()
 
-            self.tokens.expect("BUHBYE")
+            self.tokens.expect("BUHBYE") 
             return create_node("WazzupSection", declarations=decls)
 
-        return None
+        return None # if it is empty
 
 
     # <declaration_list> ::= <declaration> | <declaration> <linebreak> <declaration_list>
@@ -116,10 +118,9 @@ class Parser:
                 self.tokens.advance()
                 continue
             if self.tokens.current()["type"] == "I_HAS_A":
-                decl = self.parse_declaration()
-                declarations.append(decl)
+                decl = self.parse_declaration() # parse the declaration
+                declarations.append(decl) # add the declaration to the list
             else:
-                # WAZZUP section should only contain variable declarations
                 raise ParseError(
                     f"Unexpected token '{self.tokens.current()['type']}' in WAZZUP section. Only variable declarations (I HAS A) are allowed.",
                     self.tokens.current()
@@ -158,12 +159,13 @@ class Parser:
         if until_keywords is None:
             until_keywords = ["KTHXBYE", "BUHBYE"]
 
+        # while the current token is not a keyword to stop at
         while not self.tokens.at_end() and self.tokens.current()["type"] not in until_keywords:
             if self.tokens.current()["type"] == "LINEBREAK":
                 self.tokens.advance()
                 continue
 
-            stmt = self.parse_statement()
+            stmt = self.parse_statement() # parse the statement
             statements.append(stmt)
 
             # optional linebreak after each statement
@@ -196,11 +198,7 @@ class Parser:
                 if not self.tokens.is_declared(token_value): 
                     raise ParseError(f"Unknown identifier '{token_value}'", self.tokens.current())
                 return self.parse_assignment()
-            
-            # check if declared
-            if not self.tokens.is_declared(token_value): 
-                raise ParseError(f"Unknown identifier '{token_value}'", self.tokens.current())
-            
+                     
             # now parse as an expression statement
             expr = self.parse_expr()
             line = expr.get("line", expr.get("start_line", self.tokens.current()["line"]))
@@ -250,12 +248,12 @@ class Parser:
     # <print_args> ::= <expr> | <expr> AN <print_args>
     def parse_print_args(self):
         args = [self.parse_expr()]
-        while self.tokens.current()["type"] == "AN":
+        while self.tokens.current()["type"] == "AN": # while the current token is an AN
             self.tokens.advance()
-            args.append(self.parse_expr())
+            args.append(self.parse_expr()) # add the expression to the list
         return args
 
-    def parse_expr(self):
+    def parse_expr(self): # parses an expression
         current = self.tokens.current()
         token_value = current["value"]
         token_type = current["type"]
@@ -294,7 +292,7 @@ class Parser:
 
         if token_value in ["ANY OF", "ALL OF"]:
             operator = token_value
-            self.tokens.advance()  # skip ANY OF / ALL OF because we will parse multiple expressions
+            self.tokens.advance() # advance to the next token
 
             exprs = [self.parse_expr()]  # first expression
             while self.tokens.current()["type"] == "AN": 
@@ -309,9 +307,9 @@ class Parser:
             operator = token_value
             self.tokens.advance()  # skip operator keyword
 
-            left = self.parse_expr()          # parse first operand
-            self.tokens.expect("AN")          # expect 'AN' keyword
-            right = self.parse_expr()         # parse second operand
+            left = self.parse_expr()        
+            self.tokens.expect("AN")        
+            right = self.parse_expr()        
 
             return create_node("BinaryExpression", operator=operator, left=left,right=right)
 
@@ -440,7 +438,7 @@ class Parser:
         maybe_blocks = []
         else_block = None
 
-        while self.tokens.current()["type"] in ["MEBBE", "NO_WAI"]:
+        while self.tokens.current()["type"] in ["MEBBE", "NO_WAI"]: # while the current token is a MEBBE or NO WAI
             if self.tokens.current()["type"] == "MEBBE":
                 self.tokens.advance()
                 condition = self.parse_expr()
@@ -498,7 +496,7 @@ class Parser:
 
         return create_node("Switch",cases=cases,default=default_statements,start_line=start["line"])
     
-    def parse_increment(self):
+    def parse_increment(self): 
         start = self.tokens.current()
         self.tokens.expect("UPPIN")
         var_token = self.tokens.expect("IDENTIFIER")
@@ -510,7 +508,7 @@ class Parser:
         var_token = self.tokens.expect("IDENTIFIER")
         return create_node("Decrement", variable=var_token["value"], start_line=start["line"])
 
-    def parse_loop(self):
+    def parse_loop(self): 
         start = self.tokens.current()
         self.tokens.expect("IM_IN_YR")
 
@@ -562,12 +560,12 @@ class Parser:
         )
 
     def parse_function_list(self):
-        functions = []
+        functions = [] 
         while not self.tokens.at_end() and self.tokens.current()["type"] == "HOW_IZ_I":
-            func = self.parse_function_def()
-            functions.append(func)
-            if self.tokens.current()["type"] == "LINEBREAK":
-                self.tokens.advance()
+            func = self.parse_function_def() # parse the function definition
+            functions.append(func) # add the function to the list
+            if self.tokens.current()["type"] == "LINEBREAK": 
+                self.tokens.advance() 
         return functions
 
     def parse_function_def(self):
@@ -601,7 +599,7 @@ class Parser:
             self.tokens.advance()
             self.tokens.expect("YR")
             param_token = self.tokens.expect("IDENTIFIER")
-            params.append(param_token["value"])
+            params.append(param_token["value"]) # add the parameter to the list
         return params
 
 
@@ -612,10 +610,10 @@ class Parser:
         func_token = self.tokens.expect("IDENTIFIER")
         func_name = func_token["value"]
 
-        args = []
+        args = [] # list of arguments
         if self.tokens.current()["type"] == "YR":
             self.tokens.advance()
-            args = self.parse_arg_list()
+            args = self.parse_arg_list() # parse the argument list
 
         # MKAY is required for function calls 
         self.tokens.expect("MKAY")
