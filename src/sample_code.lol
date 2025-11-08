@@ -1,42 +1,65 @@
-HAI
-    BTW This is a comment
-    VISIBLE "HAI WORLD!"
-    
-    BTW Variables and assignment
-    I HAS A var ITZ 42
-    VISIBLE "The answer is " var
-    
-    BTW Input from user
-    VISIBLE "What's your name?"
-    GIMMEH name
-    VISIBLE "Hello " name "!"
-    
-    OBTW this is
-        a multi-line comment
-    TLDR
+BTW This is a comment before HAI - should be allowed
 
-    BTW Conditionals
-    I HAS A age ITZ 18
-    age R BIGGR OF age AN 21
-    O RLY?
-        YA RLY
-            VISIBLE "You can vote!"
-        NO WAI
-            VISIBLE "Too young to vote"
-    OIC
+BTW Functions can be defined BEFORE HAI (per spec)
+HOW IZ I helperBefore YR x
+    FOUND YR SUM OF x AN 1
+IF U SAY SO
+
+HAI
+    BTW Program must start with HAI (after optional functions)
+
+    WAZZUP
+        I HAS A name
+        I HAS A num1
+        I HAS A num2
+    BUHBYE
     
-    BTW Loop example
-    I HAS A counter ITZ 0
-    IM IN YR loop UPPIN YR counter TIL BOTH SAEM counter AN 3
-        VISIBLE "Count: " counter
-    IM OUTTA YR loop
-    
-    BTW Function example
-    HOW IZ I adding YR num1 AN YR num2
-        FOUND YR SUM OF num1 AN num2
+    BTW Functions can be defined after HAI (before WAZZUP or after statements)
+    HOW IZ I addNum YR x AN YR y
+        FOUND YR SUM OF x AN y
     IF U SAY SO
-    
-    I HAS A result ITZ I IZ adding YR 5 AN YR 3 MKAY
-    VISIBLE "5 + 3 = " result
-    
+
+    HOW IZ I printName YR person
+        VISIBLE "Hello, " AN person
+        GTFO
+    IF U SAY SO
+
+    HOW IZ I printNum YR x
+        FOUND YR x
+    IF U SAY SO
+
+    BTW Test function with no explicit return - should implicitly return NOOB
+    HOW IZ I doSomething YR value
+        VISIBLE "Processing: " AN value
+        VISIBLE "Done processing"
+    IF U SAY SO
+
+    GIMMEH num1
+    GIMMEH num2
+
+    I IZ addNum YR num1 AN YR num2 MKAY
+    VISIBLE IT 
+
+    GIMMEH name
+    I IZ printName YR name MKAY
+    VISIBLE IT
+
+    I IZ printNum YR SUM OF num1 AN 2 MKAY
+    VISIBLE IT
+
+    BTW Test implicit NOOB return
+    I IZ doSomething YR "test" MKAY
+    VISIBLE IT
+
+    BTW Test function defined before HAI
+    I IZ helperBefore YR 5 MKAY
+    VISIBLE IT
+
 KTHXBYE
+
+BTW Functions can be defined AFTER KTHXBYE (per spec)
+HOW IZ I helperAfter YR x
+    FOUND YR DIFF OF x AN 1
+IF U SAY SO
+
+BTW This comment after KTHXBYE should be allowed (filtered by lexer)
