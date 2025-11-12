@@ -27,7 +27,7 @@ def tokenize(code):
             match = pattern.match(code, position) # match based sa current position
             if match: #if pattern matches
                 value = match.group(0) #capture matched value
-                if token_type != "WHITESPACE" and token_type != "BTW" and token_type != "MULTI_LINE_COMMENT":  #ignore lang whitespace and comments pero need parin update line/column
+                if token_type != "WHITESPACE":  #ignore lang whitespace and comments pero need parin update line/column
                     tokens.append(Token(token_type, value, line, column))
                 # print(f"Matched {token_type} with value '{value}' at line {line}, column {column}") #debug print
                 lines = value.count('\n') #count new lines kapag may multiple lines

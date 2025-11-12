@@ -34,9 +34,14 @@ class Parser:
         
     # <program> ::= [<function_list>] HAI <linebreak> <wazzup_section> <statement_list> <linebreak> KTHXBYE [<function_list>]
     def parse_program(self):
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
         # functions can be defined before HAI (per spec)
         pre_program_functions = self.parse_function_list()
         
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
+
         start = self.tokens.current()
         self.tokens.expect("HAI")
 
@@ -44,25 +49,41 @@ class Parser:
         if self.tokens.current()["type"] == "LINEBREAK":
             self.tokens.advance()
 
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
+
         # prelude: functions after HAI but before WAZZUP
         prelude = self.parse_function_list()
 
         # wazzup section (optional)
         wazzup = self.parse_wazzup_section()
 
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
         # main statements
         statements = self.parse_statement_list()
 
         if self.tokens.current()["type"] == "LINEBREAK":
             self.tokens.advance()
 
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
+        
         # postlude: functions after main statements but before KTHXBYE
         postlude = self.parse_function_list()
 
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
+
         self.tokens.expect("KTHXBYE")
+
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
 
         post_program_functions = self.parse_function_list()
 
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
         # after KTHXBYE and optional functions, program must end
         if not self.tokens.at_end():
             raise ParseError(
@@ -148,6 +169,8 @@ class Parser:
         if self.tokens.current()["type"] == "ITZ":
             self.tokens.advance()
             init_value = self.parse_expr()
+        
+        self.tokens.skip_comments()
 
         return create_node("Declaration", name=var_name, value=init_value, line=start["line"])
 
@@ -165,7 +188,7 @@ class Parser:
                 self.tokens.advance()
                 continue
 
-            stmt = self.parse_statement() # parse the statement
+            stmt = self.parse_statement() # parse the statement\
             statements.append(stmt)
 
             # optional linebreak after each statement
@@ -180,7 +203,13 @@ class Parser:
     def parse_statement(self):
         current_type = self.tokens.current()["type"]
 
-        if current_type == "VISIBLE":
+        if current_type == "BTW":
+            self.tokens.advance()
+            return self.parse_statement()
+        elif current_type == "MULTI_LINE_COMMENT":
+            self.tokens.advance()
+            return self.parse_statement()
+        elif current_type == "VISIBLE":
             return self.parse_print()
         elif current_type == "I_HAS_A":
             return self.parse_declaration()
@@ -242,6 +271,8 @@ class Parser:
             exclamation = True
         else:
             exclamation = False
+        
+        self.tokens.skip_comments()
 
         return create_node("PrintStatement", arguments=args, exclamation=exclamation, line=start["line"])
 
@@ -425,7 +456,9 @@ class Parser:
     def parse_conditional(self):
         start = self.tokens.current()
         self.tokens.expect("O_RLY")
-
+        
+        self.tokens.skip_comments()
+        
         if self.tokens.current()["type"] == "LINEBREAK":
             self.tokens.advance()
 
@@ -508,7 +541,7 @@ class Parser:
         var_token = self.tokens.expect("IDENTIFIER")
         return create_node("Decrement", variable=var_token["value"], start_line=start["line"])
 
-    def parse_loop(self): 
+    def parse_loop(self): #okay 
         start = self.tokens.current()
         self.tokens.expect("IM_IN_YR")
 
@@ -635,6 +668,8 @@ class Parser:
         start = self.tokens.current()
         self.tokens.expect("FOUND_YR")
         expr = self.parse_expr()
+
+        self.tokens.skip_comments()
         return create_node("Return", expr=expr, start_line=start["line"])
 
     def parse_break(self):

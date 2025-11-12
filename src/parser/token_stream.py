@@ -46,6 +46,15 @@ class TokenStream:
         # true if at or past end of token list
         return self.position >= len(self.tokens)
 
+    def skip_comments(self):
+        # skip over any comment tokens (BTW, MULTI_LINE_COMMENT)
+        while not self.at_end() and self.current()["type"] in ["BTW"]:
+            self.advance()
+    def skip_multiple_line_comments(self):
+        # skip over any multi-line comment tokens (MULTI_LINE_COMMENT)
+        while not self.at_end() and self.current()["type"] in ["MULTI_LINE_COMMENT"]:
+            self.advance()
+
     def is_declared(self, name):
         # true if variable is declared
         return name in self.symbols
