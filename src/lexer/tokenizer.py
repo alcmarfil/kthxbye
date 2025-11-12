@@ -1,6 +1,6 @@
 #main lexical analyzer
 
-from patterns import PATTERNS
+from lexer.patterns import PATTERNS
 import re
 
 #Token class to represent different token types

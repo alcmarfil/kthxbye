@@ -1,5 +1,5 @@
 # test_tokenizer.py
-from src.patterns import PATTERNS
+from src.lexer.patterns import PATTERNS
 
 # sample tokens 
 sample_tokens = [

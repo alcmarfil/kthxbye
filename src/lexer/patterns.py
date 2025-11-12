@@ -87,8 +87,8 @@ PATTERNS = {
     "AN": re.compile(r"\bAN\b"),      
 
     # LITERALS (should still match the entire token)
-    "NUMBR_LITERAL": re.compile(r"-?[0-9]+"),
     "NUMBAR_LITERAL": re.compile(r"-?[0-9]+\.[0-9]+"),
+    "NUMBR_LITERAL": re.compile(r"-?[0-9]+"),
     "YARN_LITERAL": re.compile(r'"[^"\n]*"'),
     "TROOF_LITERAL": re.compile(r"(WIN|FAIL)"),
     "TYPE_LITERAL": re.compile(r"(NUMBR|NUMBAR|YARN|TROOF|NOOB|TYPE)"),        
