@@ -169,6 +169,12 @@ class Parser:
         if self.tokens.current()["type"] == "ITZ":
             self.tokens.advance()
             init_value = self.parse_expr()
+        else:
+            init_value = {
+                "node_type": "Literal",
+                "value": None,
+                "data_type": "NOOB_LITERAL"
+            }
         
         self.tokens.skip_comments()
 
@@ -308,9 +314,10 @@ class Parser:
             return create_node("BooleanExpression", operator=operator, left=left, right=right)
 
         if token_value == "NOT":
+            operator = token_value
             self.tokens.advance()
             expr = self.parse_expr()
-            return create_node("BooleanNotExpression", expr=expr)
+            return create_node("BooleanNotExpression", operator=operator, expr=expr)
         
         if token_value in ["BOTH SAEM", "DIFFRINT"]:
             operator = token_value

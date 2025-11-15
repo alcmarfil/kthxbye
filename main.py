@@ -15,6 +15,10 @@ from lexer.tokenizer import tokenize
 # imports from the parser folder
 from parser.parser import Parser
 
+#imports from the semantics folder
+from semantics.interpreter import Interpreter
+from semantics.environment import Environment
+
 def main():
     # get paths relative to project root
     project_root = Path(__file__).parent
@@ -56,6 +60,20 @@ def main():
     with open(ast_output_file, "w") as f:
         print(f"Writing AST to: {ast_output_file.resolve()}")
         json.dump(ast, f, indent=4)
+    
+    env = Environment()
+    interpreter = Interpreter()
+    if isinstance(ast, dict) and  ast.get("error",False):
+        print(ast["message"])
+    else:
+            
+        for dec in ast["wazzup"]["declarations"]:
+            interpreter.evaluate(dec, env)
+            print(env.var_table)
+        
+        for stmt in ast["statements"]:
+            interpreter.evaluate(stmt, env)
+            print(env.var_table)
 
 if __name__ == "__main__":
     main()

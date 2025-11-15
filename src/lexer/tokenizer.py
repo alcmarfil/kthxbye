@@ -27,6 +27,10 @@ def tokenize(code):
             match = pattern.match(code, position) # match based sa current position
             if match: #if pattern matches
                 value = match.group(0) #capture matched value
+                
+                # Strip quotes from YARN_LITERAL
+                if token_type == "YARN_LITERAL":
+                    value = value[1:-1]  # Remove quotes
                 if token_type != "WHITESPACE":  #ignore lang whitespace and comments pero need parin update line/column
                     tokens.append(Token(token_type, value, line, column))
                 # print(f"Matched {token_type} with value '{value}' at line {line}, column {column}") #debug print
