@@ -1,3 +1,5 @@
+from parser.errors import RuntimeError
+
 class Environment:
     def __init__(self):
         self.var_table = {}  # variable name to value mapping
@@ -9,4 +11,4 @@ class Environment:
         if name in self.var_table:
             return self.var_table[name]
         else:
-            Exception(f"Variable '{name}' not declared.")
+            raise RuntimeError(f"Variable '{name}' not declared.")
