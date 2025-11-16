@@ -11,7 +11,7 @@ RESERVED_KEYWORDS = {
             "HOW_IZ_I", "IF_U_SAY_SO", "FOUND_YR", "GTFO", "SMOOSH",
             "BOTH_OF", "EITHER_OF", "WON_OF", "NOT", "ANY_OF", "ALL_OF",
             "BOTH_SAEM", "DIFFRINT", "SUM_OF", "DIFF_OF", "PRODUKT_OF",
-            "QUOSHUNT_OF", "MOD_OF", "BIGGR_OF", "SMALLR_OF"
+            "QUOSHUNT_OF", "MOD_OF", "BIGGR_OF", "SMALLR_OF", "IT"
         }
 
 # Parser class to parse the tokens into an AST
@@ -234,10 +234,23 @@ class Parser:
                     raise ParseError(f"Unknown identifier '{token_value}'", self.tokens.current())
                 return self.parse_assignment()
                      
-            # now parse as an expression statement
+            # now parse as an expression
             expr = self.parse_expr()
             line = expr.get("line", expr.get("start_line", self.tokens.current()["line"]))
-            return create_node("ExpressionStatement", expression=expr, line=line)
+            
+            self.tokens.skip_comments()
+            self.tokens.skip_multiple_line_comments()
+            if self.tokens.current()["type"] == "LINEBREAK":
+                self.tokens.advance()
+            self.tokens.skip_comments()
+            self.tokens.skip_multiple_line_comments()
+            
+            if self.tokens.current()["type"] == "O_RLY":
+                return self.parse_conditional_with_expr(expr, line)
+            elif self.tokens.current()["type"] == "WTF":
+                return self.parse_switch_with_expr(expr, line)
+            else:
+                return create_node("ExpressionStatement", expression=expr, line=line)
 
         elif current_type == "GIMMEH":
             return self.parse_input()
@@ -247,10 +260,6 @@ class Parser:
             return self.parse_switch()
         elif current_type == "IM_IN_YR":
             return self.parse_loop()
-        elif current_type == "UPPIN":
-            return self.parse_increment()
-        elif current_type == "NERFIN":
-            return self.parse_decrement()
         elif current_type == "HOW_IZ_I":
             return self.parse_function_def()
         elif current_type == "I_IZ":
@@ -263,7 +272,24 @@ class Parser:
             # literal expression by itself 
             start = self.tokens.current()
             expr = self.parse_expr()
-            return create_node("ExpressionStatement", expression=expr, line=start["line"])
+            
+            # Check if expression is followed by O RLY? or WTF? (skip comments and linebreaks)
+            self.tokens.skip_comments()
+            self.tokens.skip_multiple_line_comments()
+            if self.tokens.current()["type"] == "LINEBREAK":
+                self.tokens.advance()
+            self.tokens.skip_comments()
+            self.tokens.skip_multiple_line_comments()
+            
+            # If followed by O_RLY, combine into Conditional
+            if self.tokens.current()["type"] == "O_RLY":
+                return self.parse_conditional_with_expr(expr, start["line"])
+            # If followed by WTF, combine into Switch
+            elif self.tokens.current()["type"] == "WTF":
+                return self.parse_switch_with_expr(expr, start["line"])
+            # Otherwise, return as ExpressionStatement
+            else:
+                return create_node("ExpressionStatement", expression=expr, line=start["line"])
 
 
     # <print> ::= VISIBLE <print_args> <opt_excl>
@@ -332,10 +358,18 @@ class Parser:
             operator = token_value
             self.tokens.advance() # advance to the next token
 
-            exprs = [self.parse_expr()]  # first expression
+            # check cannot be ALL OF or ANY OF
+            next_token_type = self.tokens.current().get("type", "")
+            if next_token_type in ["ALL_OF", "ANY_OF"]:
+                raise ParseError("ALL OF and ANY OF cannot be nested into each other or themselves", self.tokens.current())
+            
+            exprs = [self.parse_expr()] #first expression
             while self.tokens.current()["type"] == "AN": 
-                self.tokens.advance() 
-                exprs.append(self.parse_expr()) # parse subsequent expressions
+                self.tokens.advance()
+                next_token_type = self.tokens.current().get("type", "")
+                if next_token_type in ["ALL_OF", "ANY_OF"]:
+                    raise ParseError("ALL OF and ANY OF cannot be nested into each other or themselves", self.tokens.current())
+                exprs.append(self.parse_expr()) 
 
             self.tokens.expect("MKAY")  # must end with MKAY
             return create_node("BooleanListExpression", operator=operator, expressions=exprs)
@@ -353,8 +387,15 @@ class Parser:
 
         # literals
         elif token_type in literal_types:
+            literal_value = current["value"]
+            if token_type == "NUMBR_LITERAL" or token_type == "NUMBAR_LITERAL":
+                if literal_value.startswith("+"):
+                    raise ParseError(f"Positive sign (+) not allowed in {token_type}. Use number without sign or negative sign (-) for negative numbers.", current)
+            elif token_type == "TROOF_LITERAL":
+                if literal_value not in ["WIN", "FAIL"]:
+                    raise ParseError(f"Invalid TROOF literal: '{literal_value}'. Only WIN or FAIL are allowed.", current)
             self.tokens.advance()
-            return create_node("Literal", value=current["value"], data_type=token_type)
+            return create_node("Literal", value=literal_value, data_type=token_type)
 
         # variable references
         elif token_type == "IDENTIFIER":
@@ -460,7 +501,7 @@ class Parser:
                     | <empty>
     <end_conditional> ::= OIC
     '''
-    def parse_conditional(self):
+    def parse_conditional(self, condition_expr=None):
         start = self.tokens.current()
         self.tokens.expect("O_RLY")
         
@@ -496,7 +537,11 @@ class Parser:
         # end conditional
         self.tokens.expect("OIC")
 
-        return create_node("Conditional", yes_block=yes_block,maybe_blocks=maybe_blocks,else_block=else_block,start_line=start["line"])
+        return create_node("Conditional", condition=condition_expr, yes_block=yes_block,maybe_blocks=maybe_blocks,else_block=else_block,start_line=start["line"])
+    
+    def parse_conditional_with_expr(self, condition_expr, expr_line):
+        """Parse conditional when expression comes before O RLY?"""
+        return self.parse_conditional(condition_expr=condition_expr)
 
     '''
     <switch> ::= WTF? <linebreak> <case_list> <opt_default_case> <linebreak> OIC
@@ -504,7 +549,7 @@ class Parser:
     <case_clause> ::= OMG <literal> <linebreak> <statement_list>
     <opt_default_case> ::= OMGWTF <linebreak> <statement_list> | <empty>
     '''
-    def parse_switch(self):
+    def parse_switch(self, switch_value_expr=None):
         start = self.tokens.current()
         self.tokens.expect("WTF")
 
@@ -534,7 +579,11 @@ class Parser:
 
         self.tokens.expect("OIC")
 
-        return create_node("Switch",cases=cases,default=default_statements,start_line=start["line"])
+        return create_node("Switch", switch_value=switch_value_expr, cases=cases,default=default_statements,start_line=start["line"])
+    
+    def parse_switch_with_expr(self, switch_value_expr, expr_line):
+        """Parse switch when expression comes before WTF?"""
+        return self.parse_switch(switch_value_expr=switch_value_expr)
     
     def parse_increment(self): 
         start = self.tokens.current()
