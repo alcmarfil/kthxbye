@@ -20,11 +20,24 @@ from semantics.interpreter import Interpreter
 from semantics.environment import Environment
 
 def main():
+    import sys
+    
     # get paths relative to project root
     project_root = Path(__file__).parent
     src_dir = project_root / "src"
     
-    input_file = src_dir / "comprehensive_test.lol"
+    # accept command-line argument for input file, or use default
+    if len(sys.argv) > 1:
+        input_file = Path(sys.argv[1])
+        if not input_file.is_absolute():
+            input_file = project_root / input_file
+    else:
+        input_file = src_dir / "comprehensive_test.lol"
+    
+    if not input_file.exists():
+        print(f"Error: File '{input_file}' not found.")
+        sys.exit(1)
+    
     output_file = src_dir / "tokens_output.json"
     
     # read, tokenize, then write the output to file
@@ -60,17 +73,16 @@ def main():
     env = Environment()
     interpreter = Interpreter()
     if isinstance(ast, dict) and  ast.get("error",False):
-        print(ast["message"])
+        print(ast["message"], file=sys.stderr)
+        sys.exit(1)
     else:
         # evaluate declarations
         for dec in ast["wazzup"]["declarations"]:
             interpreter.evaluate(dec, env)
-            print(env.var_table)
 
         # evaluate statements
         for stmt in ast["statements"]:
             interpreter.evaluate(stmt, env)
-            print(env.var_table)
 
 if __name__ == "__main__":
     main()
