@@ -45,6 +45,10 @@ def tokenize(code):
                 matched = True
                 break
         if not matched: # if di matched diretso read next char
+            # Check for positive sign followed by digits (not allowed in LOLCODE)
+            if position < len(code) and code[position] == '+':
+                if position + 1 < len(code) and code[position + 1].isdigit():
+                    raise ValueError(f"Positive sign (+) not allowed before numbers at line {line}, column {column}. Use number without sign or negative sign (-) for negative numbers.")
             position += 1 
             column += 1
     return tokens
