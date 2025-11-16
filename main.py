@@ -24,7 +24,7 @@ def main():
     project_root = Path(__file__).parent
     src_dir = project_root / "src"
     
-    input_file = src_dir / "sample_code.lol"
+    input_file = src_dir / "comprehensive_test.lol"
     output_file = src_dir / "tokens_output.json"
     
     # read, tokenize, then write the output to file
@@ -45,11 +45,7 @@ def main():
     # write to JSON file
     with open(str(output_file), "w") as f:
         json.dump(tokens_dict, f, indent=4)
-    
-    # print tokens to console
-    # print("\n=== Tokenized Output (JSON) ===")
-    # print(json.dumps(tokens_dict, indent=4))
-    
+        
     print(f"\nTotal tokens: {len(tokens)}")
     print(f"Tokens written to: {output_file}")
 
@@ -58,19 +54,20 @@ def main():
     ast = parser.parse()
     ast_output_file = src_dir / "ast_output.json"
     with open(ast_output_file, "w") as f:
-        print(f"Writing AST to: {ast_output_file.resolve()}")
         json.dump(ast, f, indent=4)
     
+    # interpreter
     env = Environment()
     interpreter = Interpreter()
     if isinstance(ast, dict) and  ast.get("error",False):
         print(ast["message"])
     else:
-            
+        # evaluate declarations
         for dec in ast["wazzup"]["declarations"]:
             interpreter.evaluate(dec, env)
             print(env.var_table)
-        
+
+        # evaluate statements
         for stmt in ast["statements"]:
             interpreter.evaluate(stmt, env)
             print(env.var_table)
