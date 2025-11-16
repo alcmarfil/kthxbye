@@ -10,11 +10,11 @@ class TokenStream:
         self.position = 0 # current position in the token list
 
     def current(self):
-        # return the current token (or a dummy EOF token if past end)
-        if self.position < len(self.tokens):
-            return self.tokens[self.position]
-        return {"type": "EOF", "value": None, "line": -1, "column": -1}
-    
+            # return the current token (or a dummy EOF token if past end)
+            if self.position < len(self.tokens):
+                return self.tokens[self.position]
+            return {"type": "EOF", "value": None, "line": self.tokens[-1]["line"] if self.tokens else -1 , "column": self.tokens[-1]["column"] if self.tokens else -1}
+        
     def peek(self, offset=1):
         # look ahead without consuming
         index = self.position + offset # index of the token to look ahead 
