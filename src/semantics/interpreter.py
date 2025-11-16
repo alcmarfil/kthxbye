@@ -159,3 +159,13 @@ class Interpreter:
             return left == right
         elif op == "DIFFRINT":
             return left != right
+    def eval_inputstatement(self, node, env):
+        var = node["target"]
+
+        input_value = input()
+
+        value = env.get_var(var)
+
+        env.set_var(var, input_value)
+        return input_value
+    

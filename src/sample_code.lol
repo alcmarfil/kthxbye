@@ -6,8 +6,9 @@ HAI
         I HAS A z
     BUHBYE
 
-    temp R 3
-    VISIBLE "Temp is " AN temp
+    GIMMEH z
     
-    z R ALL OF BOTH OF x AN y MKAY
+    HOW IZ I helperBefore YR x
+        FOUND YR SUM OF x AN 1
+    IF U SAY SO
 KTHXBYE
