@@ -597,4 +597,14 @@ class Interpreter:
     #break statement 
     def eval_break(self, node, env):
         raise BreakException() #di ko alam if ok na to
+        
+    def eval_inputstatement(self, node, env):
+        var = node.get("target")
+
+        input_value = input()
+
+        value = env.get_var(var)
+
+        env.set_var(var, input_value)
+        return input_value
 

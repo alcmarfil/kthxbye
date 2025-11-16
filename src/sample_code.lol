@@ -10,8 +10,7 @@ HAI
         I HAS A result
     BUHBYE
 
-    temp R 3
-    VISIBLE "Temp is " AN temp
+    GIMMEH z
     
     z R ALL OF BOTH OF x AN y MKAY
     
