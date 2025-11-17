@@ -32,7 +32,7 @@ def main():
         if not input_file.is_absolute():
             input_file = project_root / input_file
     else:
-        input_file = src_dir / "comprehensive_test.lol"
+        input_file = src_dir / "sample_code2.lol"
     
     if not input_file.exists():
         print(f"Error: File '{input_file}' not found.")

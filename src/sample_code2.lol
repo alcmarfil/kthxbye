@@ -15,15 +15,15 @@ HAI
 
     WAZZUP
         I HAS A name BTW this is a variable declaration
-        I HAS A num1
+        I HAS A num1 ITZ 11
         I HAS A num2
         I HAS A animal
+        I HAS A temp ITZ 0
     BUHBYE
     IM IN YR print10 UPPIN YR temp TIL BOTH SAEM temp AN 10
         VISIBLE temp
     IM OUTTA YR print10
 
-    GIMMEH num1
 
     OBTW HADSHHSAD
     TLDR BOTH SAEM num1 AN BIGGR OF num1 AN 0 
@@ -37,7 +37,7 @@ HAI
     VISIBLE "Enter an animal (cat/dog/cow):"
     GIMMEH animal
     WTF? 
-        OMG "cat" 
+        OMG BOTH SAEM animal AN "cat"
             VISIBLE "Meow! It's a cat."
             GTFO
         OMG "dog"
@@ -51,6 +51,7 @@ HAI
         BTW AHAH
     OIC BTW HAHAH
 
+OBTW
     BTW Functions can be defined after HAI (before WAZZUP or after statements)
     HOW IZ I addNum YR x AN YR y 
         FOUND YR SUM OF x AN y BTW AHSHSH
@@ -70,6 +71,7 @@ HAI
         VISIBLE "Processing: " AN value
         VISIBLE "Done processing"
     IF U SAY SO
+TLDR
 
     GIMMEH num1 BTWHHAS 
     GIMMEH num2
@@ -93,12 +95,8 @@ HAI
     VISIBLE IT
 
     BTW Test function defined after KTHXBYE
-
 KTHXBYE
 
-BTW Functions can be defined AFTER KTHXBYE (per spec)
-HOW IZ I helperAfter YR x
-    FOUND YR DIFF OF x AN 1
-IF U SAY SO
-
 BTW This comment after KTHXBYE should be allowed (filtered by lexer)
+
+

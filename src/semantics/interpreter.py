@@ -468,7 +468,7 @@ class Interpreter:
     
     #switch statements
     def eval_switch(self, node, env):
-        switch_value_expr = node.get("switch_value")
+        switch_value_expr = node.get("switch_value") #can also be from GIMMEH
         cases = node.get("cases", [])
         default = node.get("default")
         
@@ -604,7 +604,7 @@ class Interpreter:
         input_value = input()
 
         value = env.get_var(var)
-
         env.set_var(var, input_value)
+        env.set_var("IT", input_value)
         return input_value
 
