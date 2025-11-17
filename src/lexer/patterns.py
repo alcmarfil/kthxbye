@@ -102,7 +102,7 @@ PATTERNS = {
 
     # STRUCTURE
     "LINEBREAK": re.compile(r"^\n$"),        
-    "EXCLAMATION": re.compile(r"^!$"),      
+    "EXCLAMATION": re.compile(r"!"),      
     "TEXT": re.compile(r"^[^\n\r]*$"),      
 
     # WHITESPACE
