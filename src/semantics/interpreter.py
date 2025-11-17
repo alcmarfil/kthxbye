@@ -102,7 +102,7 @@ class Interpreter:
             output_parts.append(yarn_value)
         
         # Join with '+' separator and print
-        output = "+".join(output_parts)
+        output = "".join(output_parts)
         print(output, end="")
         
         # only print newline if exclamation mark is not present

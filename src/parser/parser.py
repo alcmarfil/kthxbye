@@ -114,12 +114,13 @@ class Parser:
 
     # <wazzup_section> ::= WAZZUP <linebreak> <declaration_list> <linebreak> BUHBYE | <empty>
     def parse_wazzup_section(self):
+        self.tokens.skip_comments()
         if self.tokens.current()["type"] == "WAZZUP":
             self.tokens.advance()
 
             if self.tokens.current()["type"] == "LINEBREAK":
                 self.tokens.advance()
-
+            self.tokens.skip_comments()
             decls = self.parse_declaration_list() # parse the declaration list
 
             if self.tokens.current()["type"] == "LINEBREAK":
@@ -189,7 +190,15 @@ class Parser:
             until_keywords = ["KTHXBYE", "BUHBYE"]
 
         # while the current token is not a keyword to stop at
-        while not self.tokens.at_end() and self.tokens.current()["type"] not in until_keywords:
+        while not self.tokens.at_end():
+            # Skip comments before checking until_keywords
+            self.tokens.skip_comments()
+            self.tokens.skip_multiple_line_comments()
+            
+            # Check if we've reached a stopping keyword
+            if self.tokens.current()["type"] in until_keywords:
+                break
+                
             if self.tokens.current()["type"] == "LINEBREAK":
                 self.tokens.advance()
                 continue
@@ -311,7 +320,7 @@ class Parser:
     # <print_args> ::= <expr> | <expr> AN <print_args>
     def parse_print_args(self):
         args = [self.parse_expr()]
-        while self.tokens.current()["type"] == "AN": # while the current token is an AN
+        while self.tokens.current()["type"] == "PLUS" or self.tokens.current()["type"] == "AN" : # while the current token is an AN
             self.tokens.advance()
             args.append(self.parse_expr()) # add the expression to the list
         return args

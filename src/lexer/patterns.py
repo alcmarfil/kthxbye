@@ -4,6 +4,7 @@ import re
 
 PATTERNS = {
     # KEYWORDS
+    "+":re.compile(r"\b\+\b"),
     # Core structure
     "HAI": re.compile(r"\bHAI\b"),
     "KTHXBYE": re.compile(r"\bKTHXBYE\b"),
@@ -92,6 +93,9 @@ PATTERNS = {
     "YARN_LITERAL": re.compile(r'"[^"\n]*"'),
     "TROOF_LITERAL": re.compile(r"(WIN|FAIL)"),
     "TYPE_LITERAL": re.compile(r"(NUMBR|NUMBAR|YARN|TROOF|NOOB|TYPE)"),        
+
+    # OPERATORS/SYMBOLS
+    "PLUS": re.compile(r"\+"),
 
     # IDENTIFIERS (entire token match)
     "IDENTIFIER": re.compile(r"[A-Za-z][A-Za-z0-9_]*"),
