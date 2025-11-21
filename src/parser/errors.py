@@ -16,3 +16,7 @@ class RuntimeError(Exception):
             super().__init__(f"{message} at line {node['line']}, column {node['column']}")
         else: 
             super().__init__(message)
+
+class ReturnValue(Exception):
+    def __init__(self,value):
+        self.value = value

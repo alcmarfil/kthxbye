@@ -76,6 +76,10 @@ def main():
         print(ast["message"], file=sys.stderr)
         sys.exit(1)
     else:
+        if len(ast["prelude"]) > 0:
+            for func in ast.get("prelude"):
+                interpreter.evaluate(func,env)
+                print(env.func_table)
         # evaluate declarations
         for dec in ast["wazzup"]["declarations"]:
             interpreter.evaluate(dec, env)

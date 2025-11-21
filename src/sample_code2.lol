@@ -5,6 +5,13 @@ HOW IZ I helperBefore YR x
     FOUND YR SUM OF x AN 1
 IF U SAY SO
 
+HOW IZ I addNum YR x AN YR y
+    VISIBLE SUM OF x AN y
+
+    GTFO
+IF U SAY SO
+
+
 BTW Another comment before HAI
 OBTW 
 This is a multi-line comment
@@ -37,7 +44,7 @@ HAI
     VISIBLE "Enter an animal (cat/dog/cow):"
     GIMMEH animal
     WTF? 
-        OMG BOTH SAEM animal AN "cat"
+        OMG "cat"
             VISIBLE "Meow! It's a cat."
             GTFO
         OMG "dog"
@@ -51,50 +58,13 @@ HAI
         BTW AHAH
     OIC BTW HAHAH
 
-OBTW
-    BTW Functions can be defined after HAI (before WAZZUP or after statements)
-    HOW IZ I addNum YR x AN YR y 
-        FOUND YR SUM OF x AN y BTW AHSHSH
-    IF U SAY SO 
-
-    HOW IZ I printName YR person
-        VISIBLE "Hello, " person
-        GTFO
-    IF U SAY SO BTW HAHSDUIHUAS
-
-    HOW IZ I printNum YR x
-        FOUND YR x 
-    IF U SAY SO
-
-    BTW Test function with no explicit return - should implicitly return NOOB
-    HOW IZ I doSomething YR value
-        VISIBLE "Processing: " AN value
-        VISIBLE "Done processing"
-    IF U SAY SO
-TLDR
-
     GIMMEH num1 BTWHHAS 
     GIMMEH num2
 
     I IZ addNum YR num1 AN YR num2 MKAY BTW HASHDHAUS
     VISIBLE IT 
 
-    GIMMEH name
-    I IZ printName YR name MKAY
-    VISIBLE IT
 
-    I IZ printNum YR SUM OF num1 AN 2 MKAY
-    VISIBLE IT
-
-    BTW Test implicit NOOB return
-    I IZ doSomething YR "test" MKAY
-    VISIBLE IT
-
-    BTW Test function defined before HAI
-    I IZ helperBefore YR 5 MKAY BTW HAHASH
-    VISIBLE IT
-
-    BTW Test function defined after KTHXBYE
 KTHXBYE
 
 BTW This comment after KTHXBYE should be allowed (filtered by lexer)

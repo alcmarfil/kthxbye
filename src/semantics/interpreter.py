@@ -1,6 +1,7 @@
 
 from semantics.environment import Environment
 from parser.errors import RuntimeError
+from parser.errors import ReturnValue
 
 # Exception for breaking out of loops
 class BreakException(Exception):
@@ -607,4 +608,47 @@ class Interpreter:
         env.set_var(var, input_value)
         env.set_var("IT", input_value)
         return input_value
+
+    def eval_functiondef(self, node, env):
+
+        func_def = {
+            "params": node.get("params"),
+            "body":node.get("body"),
+            "parent_env": env
+        }
+        env.set_func(node.get("name"), func_def)
+    
+    def eval_functioncall(self, node, env):
+        func = env.get_func(node.get("name"))
+
+        params = func.get("params")
+        args = node.get("args")
+
+        if len(params) != len(args):
+            raise RuntimeError("Argument does not match function parameters count")
+        
+
+        local_env = Environment(parent=func.get("parent_env"))
+
+        for param_name, arg in zip(params, args):
+            local_env.set_var(param_name, self.evaluate(arg, env))
+
+        
+        try:
+            for line in func.get("body"):
+                self.evaluate(line, local_env)
+
+        except ReturnValue as ret_value:
+            env.set_var("IT", ret_value)
+            return ret_value.value
+    
+        return None
+
+
+    def eval_return(self, node, env):
+        ret_value = self.evaluate(node.get("expr"), env)
+        env.set_var("IT", ret_value)
+        raise ReturnValue(ret_value)
+
+
 
