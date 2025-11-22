@@ -4,12 +4,13 @@ import re
 
 PATTERNS = {
     # KEYWORDS
+    "+":re.compile(r"\b\+\b"),
     # Core structure
     "HAI": re.compile(r"\bHAI\b"),
     "KTHXBYE": re.compile(r"\bKTHXBYE\b"),
 
     # Comments
-    "BTW": re.compile(r"\bBTW.*\b"),
+    "BTW": re.compile(r"\bBTW.*"),
     "MULTI_LINE_COMMENT": re.compile(r"\bOBTW\b(.*?)\bTLDR\b", re.DOTALL),
 
     # Variable declaration
@@ -93,12 +94,15 @@ PATTERNS = {
     "TROOF_LITERAL": re.compile(r"(WIN|FAIL)"),
     "TYPE_LITERAL": re.compile(r"(NUMBR|NUMBAR|YARN|TROOF|NOOB|TYPE)"),        
 
+    # OPERATORS/SYMBOLS
+    "PLUS": re.compile(r"\+"),
+
     # IDENTIFIERS (entire token match)
     "IDENTIFIER": re.compile(r"[A-Za-z][A-Za-z0-9_]*"),
 
     # STRUCTURE
     "LINEBREAK": re.compile(r"^\n$"),        
-    "EXCLAMATION": re.compile(r"^!$"),      
+    "EXCLAMATION": re.compile(r"!"),      
     "TEXT": re.compile(r"^[^\n\r]*$"),      
 
     # WHITESPACE

@@ -7,19 +7,20 @@ class TokenStream:
     def __init__(self, tokens):
         self.tokens = tokens # list of tokens
         self.symbols = set() # set of declared variables
+        # set is used for O(1) lookups
         self.position = 0 # current position in the token list
 
     def current(self):
-        # return the current token (or a dummy EOF token if past end)
-        if self.position < len(self.tokens):
-            return self.tokens[self.position]
-        return {"type": "EOF", "value": None, "line": -1, "column": -1}
-    
+            # return the current token (or a dummy EOF token if past end)
+            if self.position < len(self.tokens):
+                return self.tokens[self.position]
+            return {"type": "EOF", "value": None, "line": self.tokens[-1]["line"] if self.tokens else -1 , "column": self.tokens[-1]["column"] if self.tokens else -1}
+        
     def peek(self, offset=1):
         # look ahead without consuming
         index = self.position + offset # index of the token to look ahead 
         if index < len(self.tokens): # if index is within the list
-            return self.tokens[index]
+            return self.tokens[index] 
         return None
 
     def advance(self):
@@ -27,7 +28,7 @@ class TokenStream:
         if self.position < len(self.tokens):
             self.position += 1 # increment position
 
-    def expect(self, expected_type):
+    def expect(self, expected_type): 
         # consume and return a token of expected type, or raise error
         token = self.current() 
         if token["type"] != expected_type:
@@ -38,7 +39,7 @@ class TokenStream:
     def match(self, expected_type):
         # if current token matches, consume it and return True
         if self.current()["type"] == expected_type: # if current token matches expected type
-            self.advance()
+            self.advance() #increment position 
             return True
         return False
 
