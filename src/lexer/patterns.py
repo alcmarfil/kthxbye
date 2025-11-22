@@ -4,7 +4,6 @@ import re
 
 PATTERNS = {
     # KEYWORDS
-    "+":re.compile(r"\b\+\b"),
     # Core structure
     "HAI": re.compile(r"\bHAI\b"),
     "KTHXBYE": re.compile(r"\bKTHXBYE\b"),
