@@ -282,20 +282,25 @@ class Interpreter:
         left = self.evaluate(node.get("left"), env)
         right = self.evaluate(node.get("right"), env)
 
-        if isinstance(left, int) and isinstance(right, int):
-            if op == "BOTH SAEM":
-                return left == right
-            elif op == "DIFFRINT":
-                return left != right
-        elif isinstance(left, (int, float)) and isinstance(right, (int, float)):
-            # convert numbr to numbar for comparison
-            left_float = float(left) if isinstance(left, int) else left
-            right_float = float(right) if isinstance(right, int) else right
+        # try to convert YARN to numeric if comparing with numeric types
+        if isinstance(left, str) and isinstance(right, (int, float)):
+            if self.is_valid_numeric_yarn(left):
+                left = float(left) if '.' in left else int(float(left))
+        elif isinstance(right, str) and isinstance(left, (int, float)):
+            if self.is_valid_numeric_yarn(right):
+                right = float(right) if '.' in right else int(float(right))
+
+        # compare based on final types
+        if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+            # convert both to float for comparison (numbr to numbar)
+            left_float = float(left)
+            right_float = float(right)
             if op == "BOTH SAEM":
                 return left_float == right_float
             elif op == "DIFFRINT":
                 return left_float != right_float
         else:
+            # string comparison or other types
             if op == "BOTH SAEM":
                 return left == right
             elif op == "DIFFRINT":
@@ -336,27 +341,35 @@ class Interpreter:
         
         # handle NUMBAR 
         elif isinstance(value, float):
-            cast_map = {
-                "NUMBR": int(value),  # truncates decimal
-                "NUMBAR": value,
-                "YARN": f"{value:.2f}",  # two decimal places
-                "TROOF": value != 0.0,
-                "NOOB": None
-            }
-            if target_type in cast_map:
-                return cast_map[target_type]
+            if target_type == "NUMBR":
+                return int(value)  # truncates decimal portion
+            elif target_type == "NUMBAR":
+                return value
+            elif target_type == "YARN":
+                return f"{value:.2f}"  # truncate to two decimal places
+            elif target_type == "TROOF":
+                return value != 0.0  # numerical zero -> FAIL, all other -> WIN
+            elif target_type == "NOOB":
+                return None
+            else:
+                error_msg = f"Cannot cast NUMBAR to {target_type}"
+                raise RuntimeError(error_msg, node) if node else RuntimeError(error_msg)
         
         # handle NUMBR (int)
         elif isinstance(value, int):
-            cast_map = {
-                "NUMBR": value,
-                "NUMBAR": float(value), 
-                "YARN": str(value),
-                "TROOF": value != 0,
-                "NOOB": None
-            }
-            if target_type in cast_map:
-                return cast_map[target_type]
+            if target_type == "NUMBR":
+                return value
+            elif target_type == "NUMBAR":
+                return float(value)  # convert to floating point, value retained
+            elif target_type == "YARN":
+                return str(value)  # convert to string of characters
+            elif target_type == "TROOF":
+                return value != 0 
+            elif target_type == "NOOB":
+                return None
+            else:
+                error_msg = f"Cannot cast NUMBR to {target_type}"
+                raise RuntimeError(error_msg, node) if node else RuntimeError(error_msg)
         
         # handle YARN (str)
         elif isinstance(value, str):
@@ -409,6 +422,7 @@ class Interpreter:
         converted_value = self.cast_value(current_value, new_type, node)
         
         env.set_var(var_name, converted_value) # update the variable in the environment
+        env.set_var("IT", converted_value) # update IT variable
         return converted_value
 
     #conditionals 
@@ -601,10 +615,16 @@ class Interpreter:
         
     def eval_inputstatement(self, node, env):
         var = node.get("target")
-
+        if var is None:
+            raise RuntimeError("Input statement missing target variable", node)
+        
+        # validate that the variable exists 
+        if var not in env.var_table:
+            raise RuntimeError(f"Variable '{var}' not declared. Variables must be declared before use in GIMMEH.", node)
+        
         input_value = input()
-
-        value = env.get_var(var)
+        
+        # store input in the variable and update IT
         env.set_var(var, input_value)
         env.set_var("IT", input_value)
         return input_value
