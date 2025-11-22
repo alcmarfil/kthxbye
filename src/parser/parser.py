@@ -11,7 +11,8 @@ RESERVED_KEYWORDS = {
             "HOW_IZ_I", "IF_U_SAY_SO", "FOUND_YR", "GTFO", "SMOOSH",
             "BOTH_OF", "EITHER_OF", "WON_OF", "NOT", "ANY_OF", "ALL_OF",
             "BOTH_SAEM", "DIFFRINT", "SUM_OF", "DIFF_OF", "PRODUKT_OF",
-            "QUOSHUNT_OF", "MOD_OF", "BIGGR_OF", "SMALLR_OF", "IT"
+            "QUOSHUNT_OF", "MOD_OF", "BIGGR_OF", "SMALLR_OF", "IT",
+            "AN", "YR", "MKAY", "WAZZUP", "BUHBYE"
         }
 
 # Parser class to parse the tokens into an AST
