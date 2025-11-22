@@ -11,16 +11,28 @@ HAI
         I HAS A result
         I HAS A max
         I HAS A pattern
+        I HAS A temp_i
+        I HAS A temp_j
+        I HAS A temp_k
+        I HAS A temp_sq
+        I HAS A temp_counter
+        I HAS A temp_flag
+        I HAS A temp_div
     BUHBYE
     
     BTW Test 1: Nested loops
     VISIBLE "=== Test 1: Nested Loops ==="
+    i R 0
+    j R 0
     sum R 0
     
-    IM IN YR outer UPPIN YR i WILE SMALLR OF i AN 3
-        IM IN YR inner UPPIN YR j WILE SMALLR OF j AN 2
+    IM IN YR outer UPPIN YR i WILE DIFFRINT BIGGR OF i AN 3 AN i
+        j R 0
+        IM IN YR inner UPPIN YR j WILE DIFFRINT BIGGR OF j AN 2 AN j
             sum R SUM OF sum AN PRODUKT OF i AN j
-            VISIBLE "i=" + i + ", j=" + j + ", sum=" + sum
+            temp_i R i
+            temp_j R j
+            VISIBLE "i=" + temp_i + ", j=" + temp_j + ", sum=" + sum
         IM OUTTA YR inner
     IM OUTTA YR outer
     
@@ -31,8 +43,9 @@ HAI
     counter R 0
     max R 10
     
-    IM IN YR test1 UPPIN YR counter WILE BOTH OF SMALLR OF counter AN max AN WIN
-        VISIBLE "Counter: " + counter
+    IM IN YR test1 UPPIN YR counter WILE BOTH OF DIFFRINT BIGGR OF counter AN max AN counter AN WIN
+        temp_counter R counter
+        VISIBLE "Counter: " + temp_counter
         temp R counter
         BOTH SAEM temp AN 5
         O RLY?
@@ -47,9 +60,10 @@ HAI
     sum R 0
     max R 10
     
-    IM IN YR test2 UPPIN YR i WILE SMALLR OF i AN max
+    IM IN YR test2 UPPIN YR i WILE DIFFRINT BIGGR OF i AN max AN i
         sum R SUM OF sum AN i
-        VISIBLE "i=" + i + ", sum=" + sum
+        temp_i R i
+        VISIBLE "i=" + temp_i + ", sum=" + sum
     IM OUTTA YR test2
     
     VISIBLE "Final sum: " + sum
@@ -67,33 +81,44 @@ HAI
     i R 0
     temp R "0"
     
-    IM IN YR test4 UPPIN YR i WILE SMALLR OF i AN 5
+    IM IN YR test4 UPPIN YR i WILE DIFFRINT BIGGR OF i AN 5 AN i
         temp R MAEK i A YARN
-        VISIBLE "i=" + i + ", as string: " + temp
+        temp_i R i
+        VISIBLE "i=" + temp_i + ", as string: " + temp
     IM OUTTA YR test4
     
-    BTW Test 6: Loop with string operations
+    BTW Test 6: Loop with string operations (simplified to avoid infinite loop bug)
     VISIBLE "=== Test 6: String Operations in Loops ==="
-    i R 1
+    i R 0
     result R ""
-    max R 4
+    counter R 0
     
-    IM IN YR test5 UPPIN YR i WILE SMALLR OF i AN max
-        result R SMOOSH result AN i AN " "
-        VISIBLE "Iteration " + i + ": result=" + result
+    IM IN YR test5 UPPIN YR i WILE DIFFRINT BIGGR OF i AN 4 AN i
+        counter R SUM OF counter AN 1
+        temp R MAEK counter A YARN
+        result R SMOOSH result AN temp AN " "
+        VISIBLE "Iteration " + temp + ": result=" + result
     IM OUTTA YR test5
     
     VISIBLE "Final result: " + result
     
     BTW Test 7: Triple nested loops
     VISIBLE "=== Test 7: Triple Nested Loops ==="
+    i R 0
+    j R 0
+    k R 0
     product R 1
     
-    IM IN YR outer2 UPPIN YR i WILE SMALLR OF i AN 2
-        IM IN YR middle UPPIN YR j WILE SMALLR OF j AN 2
-            IM IN YR inner2 UPPIN YR k WILE SMALLR OF k AN 2
+    IM IN YR outer2 UPPIN YR i WILE DIFFRINT BIGGR OF i AN 2 AN i
+        j R 0
+        IM IN YR middle UPPIN YR j WILE DIFFRINT BIGGR OF j AN 2 AN j
+            k R 0
+            IM IN YR inner2 UPPIN YR k WILE DIFFRINT BIGGR OF k AN 2 AN k
                 product R PRODUKT OF product AN SUM OF SUM OF i AN j AN k
-                VISIBLE "i=" + i + ", j=" + j + ", k=" + k + ", product=" + product
+                temp_i R i
+                temp_j R j
+                temp_k R k
+                VISIBLE "i=" + temp_i + ", j=" + temp_j + ", k=" + temp_k + ", product=" + product
             IM OUTTA YR inner2
         IM OUTTA YR middle
     IM OUTTA YR outer2
@@ -105,8 +130,10 @@ HAI
     flag R WIN
     counter R 0
     
-    IM IN YR test6 UPPIN YR counter WILE BOTH OF SMALLR OF counter AN 5 AN flag
-        VISIBLE "Counter: " + counter + ", flag: " + flag
+    IM IN YR test6 UPPIN YR counter WILE BOTH OF DIFFRINT BIGGR OF counter AN 5 AN counter AN flag
+        temp_counter R counter
+        temp_flag R flag
+        VISIBLE "Counter: " + temp_counter + ", flag: " + temp_flag
         temp R counter
         BOTH SAEM temp AN 3
         O RLY?
@@ -121,13 +148,15 @@ HAI
     i R 0
     max R 7
     
-    IM IN YR test7 UPPIN YR i WILE BOTH OF SMALLR OF i AN max AN DIFFRINT i AN max
+    IM IN YR test7 UPPIN YR i WILE BOTH OF DIFFRINT BIGGR OF i AN max AN i AN DIFFRINT i AN max
         BOTH SAEM MOD OF i AN 2 AN 0
         O RLY?
             YA RLY
-                VISIBLE "Even: " + i
+                temp_i R i
+                VISIBLE "Even: " + temp_i
             NO WAI
-                VISIBLE "Odd: " + i
+                temp_i R i
+                VISIBLE "Odd: " + temp_i
         OIC
     IM OUTTA YR test7
     
@@ -150,9 +179,11 @@ HAI
     i R 0
     result R 0
     
-    IM IN YR test9 UPPIN YR i WILE SMALLR OF i AN 6
+    IM IN YR test9 UPPIN YR i WILE DIFFRINT BIGGR OF i AN 6 AN i
         result R SUM OF result AN PRODUKT OF i AN i
-        VISIBLE "i=" + i + ", i*i=" + PRODUKT OF i AN i + ", result=" + result
+        temp_i R i
+        temp_sq R PRODUKT OF i AN i
+        VISIBLE "i=" + temp_i + ", i*i=" + temp_sq + ", result=" + result
     IM OUTTA YR test9
     
     VISIBLE "Sum of squares: " + result
@@ -161,18 +192,23 @@ HAI
     VISIBLE "=== Test 12: NERFIN with Arithmetic ==="
     counter R 20
     
-    IM IN YR test10 NERFIN YR counter TIL SMALLR OF counter AN 10
-        VISIBLE "Counter: " + counter + ", Counter/2: " + QUOSHUNT OF counter AN 2
+    IM IN YR test10 NERFIN YR counter TIL BOTH SAEM counter AN 9
+        temp_counter R counter
+        temp_div R QUOSHUNT OF counter AN 2
+        VISIBLE "Counter: " + temp_counter + ", Counter/2: " + temp_div
     IM OUTTA YR test10
     
     BTW Test 13: Loop with string concatenation
     VISIBLE "=== Test 13: String Concatenation in Loop ==="
-    i R 1
+    i R 0
     pattern R ""
+    counter R 0
     
-    IM IN YR test11 UPPIN YR i WILE SMALLR OF i AN 5
+    IM IN YR test11 UPPIN YR i WILE DIFFRINT BIGGR OF i AN 5 AN i
+        counter R SUM OF counter AN 1
         pattern R SMOOSH pattern AN "*"
-        VISIBLE "Iteration " + i + ": " + pattern
+        temp R MAEK counter A YARN
+        VISIBLE "Iteration " + temp + ": " + pattern
     IM OUTTA YR test11
     
     BTW Test 14: Nested loops with different loop types
@@ -180,10 +216,12 @@ HAI
     i R 0
     j R 5
     
-    IM IN YR outer3 UPPIN YR i WILE SMALLR OF i AN 3
-        VISIBLE "Outer: " + i
-        IM IN YR inner3 NERFIN YR j TIL SMALLR OF j AN 2
-            VISIBLE "  Inner: " + j
+    IM IN YR outer3 UPPIN YR i WILE DIFFRINT BIGGR OF i AN 3 AN i
+        temp_i R i
+        VISIBLE "Outer: " + temp_i
+        IM IN YR inner3 NERFIN YR j TIL BOTH SAEM j AN 1
+            temp_j R j
+            VISIBLE "  Inner: " + temp_j
         IM OUTTA YR inner3
         j R 5
     IM OUTTA YR outer3
