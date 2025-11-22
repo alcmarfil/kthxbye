@@ -647,14 +647,17 @@ class Parser:
             self.tokens.advance()
             literal = self.parse_expr()  # usually a literal
             
-            # validate that switch case literal is a YARN literal
+            # validate that switch case is a literal (not an expression)
             if not isinstance(literal, dict):
-                raise ParseError("Switch case must use a YARN literal, not an expression", self.tokens.current())
+                raise ParseError("Switch case must use a literal, not an expression", self.tokens.current())
             if literal.get("node_type") != "Literal":
-                raise ParseError("Switch case must use a YARN literal, not an expression", self.tokens.current())
-            if literal.get("data_type") != "YARN_LITERAL":
+                raise ParseError("Switch case must use a literal, not an expression", self.tokens.current())
+
+            # accept any literal type: NUMBR, NUMBAR, YARN, TROOF
+            valid_literal_types = ["NUMBR_LITERAL", "NUMBAR_LITERAL", "YARN_LITERAL", "TROOF_LITERAL"]
+            if literal.get("data_type") not in valid_literal_types:
                 literal_type = literal.get("data_type", "unknown")
-                raise ParseError(f"Switch case must use a YARN literal, found {literal_type} literal", self.tokens.current())
+                raise ParseError(f"Switch case must use a literal (NUMBR, NUMBAR, YARN, or TROOF), found {literal_type}", self.tokens.current())
             
             while self.tokens.current()["type"] == "LINEBREAK":
                 self.tokens.advance()
