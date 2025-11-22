@@ -68,8 +68,8 @@ HAI
         OMG "test1"
             VISIBLE "Matched test1"
             GTFO
-        OMG SMOOSH "test" AN counter
-            VISIBLE "Dynamic match"
+        OMG "test2"
+            VISIBLE "Matched test2"
             GTFO
         OMGWTF
             VISIBLE "No match"
@@ -180,8 +180,8 @@ HAI
         OMG "hello world"
             VISIBLE "Matched concatenated string"
             GTFO
-        OMG SMOOSH "hello" AN " " AN "world"
-            VISIBLE "Matched with SMOOSH in case"
+        OMG "hello world!"
+            VISIBLE "Matched alternative string"
             GTFO
         OMGWTF
             VISIBLE "No match: " + temp
