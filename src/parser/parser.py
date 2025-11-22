@@ -11,7 +11,8 @@ RESERVED_KEYWORDS = {
             "HOW_IZ_I", "IF_U_SAY_SO", "FOUND_YR", "GTFO", "SMOOSH",
             "BOTH_OF", "EITHER_OF", "WON_OF", "NOT", "ANY_OF", "ALL_OF",
             "BOTH_SAEM", "DIFFRINT", "SUM_OF", "DIFF_OF", "PRODUKT_OF",
-            "QUOSHUNT_OF", "MOD_OF", "BIGGR_OF", "SMALLR_OF", "IT"
+            "QUOSHUNT_OF", "MOD_OF", "BIGGR_OF", "SMALLR_OF", "IT",
+            "AN", "YR", "MKAY", "WAZZUP", "BUHBYE"
         }
 
 # Parser class to parse the tokens into an AST
@@ -317,12 +318,65 @@ class Parser:
 
         return create_node("PrintStatement", arguments=args, exclamation=exclamation, line=start["line"])
 
-    # <print_args> ::= <expr> | <expr> AN <print_args>
+    # <print_args> ::= <expr> | <expr> + <print_args>
     def parse_print_args(self):
+        expression_start_types = [
+            "NUMBR_LITERAL", "NUMBAR_LITERAL", "YARN_LITERAL",
+            "TROOF_LITERAL", "TYPE_LITERAL", "NOOB_LITERAL",
+            "IDENTIFIER", "SMOOSH", "MAEK", "I_IZ",
+            "SUM_OF", "DIFF_OF", "PRODUKT_OF", "QUOSHUNT_OF",
+            "MOD_OF", "BIGGR_OF", "SMALLR_OF",
+            "BOTH_OF", "EITHER_OF", "WON_OF", "NOT",
+            "ANY_OF", "ALL_OF", "BOTH_SAEM", "DIFFRINT"
+        ]
+        
         args = [self.parse_expr()]
-        while self.tokens.current()["type"] == "PLUS" or self.tokens.current()["type"] == "AN" : # while the current token is an AN
+        
+        # only allow + as separator in VISIBLE 
+        while self.tokens.current()["type"] == "PLUS":
+            self.tokens.advance() # advance to the next token
+            args.append(self.parse_expr())
+        
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
+        if self.tokens.current()["type"] == "LINEBREAK":
             self.tokens.advance()
-            args.append(self.parse_expr()) # add the expression to the list
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
+        
+        # check if AN is used as separator (raise error)
+        if self.tokens.current()["type"] == "AN":
+            current_token = self.tokens.current()
+            raise ParseError(
+                f"Use '+' to separate expressions in VISIBLE statement, 'AN' is only for operations and SMOOSH (line {current_token.get('line', '?')})",
+                current_token
+            )
+        
+        # check for missing separator (missing +)
+        # only error if we see an expression start type and we're not at end of statement
+        # and the next token is not a statement keyword (to avoid false positives)
+        current_type = self.tokens.current()["type"]
+        end_of_statement_tokens = ["LINEBREAK", "EXCLAMATION", "EOF", "KTHXBYE", "BUHBYE", None]
+        statement_keywords = ["VISIBLE", "GIMMEH", "I_HAS_A", "R", "IS_NOW_A", "O_RLY", "WTF", "IM_IN_YR", "GTFO", "FOUND_YR", "WILE", "TIL", "UPPIN", "NERFIN"]
+        
+        if current_type not in end_of_statement_tokens and current_type in expression_start_types:
+            # check if next token is a statement keyword. if yes, we're probably at a new statement
+            peek_token = self.tokens.peek(1)
+            if peek_token and peek_token.get("type") not in statement_keywords:
+                current_token = self.tokens.current()
+                raise ParseError(
+                    f"Expected '+' between expressions in VISIBLE statement (found '{current_token.get('value', current_type)}' at line {current_token.get('line', '?')})",
+                    current_token
+                )
+        
+        # skip comments and linebreaks (after validation)
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
+        if self.tokens.current()["type"] == "LINEBREAK":
+            self.tokens.advance()
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
+        
         return args
 
     def parse_expr(self): # parses an expression
@@ -472,8 +526,7 @@ class Parser:
         self.tokens.expect("SMOOSH")
         exprs = []
 
-        # if next token cannot start an expression, allow empty SMOOSH (empty string)
-        if self.tokens.current()["type"] not in [
+        expression_start_types = [
             "NUMBR_LITERAL", "NUMBAR_LITERAL", "YARN_LITERAL",
             "TROOF_LITERAL", "TYPE_LITERAL", "NOOB_LITERAL",
             "IDENTIFIER", "SMOOSH", "MAEK", "I_IZ",
@@ -481,19 +534,42 @@ class Parser:
             "MOD_OF", "BIGGR_OF", "SMALLR_OF",
             "BOTH_OF", "EITHER_OF", "WON_OF", "NOT",
             "ANY_OF", "ALL_OF", "BOTH_SAEM", "DIFFRINT"
-        ]:
-            # treat as empty string
+        ]
+
+        # if next token cannot start an expression, allow empty SMOOSH (empty string)
+        if self.tokens.current()["type"] not in expression_start_types:
             return create_node("StringExpression", expressions=[])
 
-        # first expression (if present)
+        # first expression (if meron)
         exprs.append(self.parse_expr())
-
+        
         # chain with AN <expr>
         while self.tokens.current()["type"] == "AN":
             self.tokens.advance()
-            if self.tokens.current()["type"] in ["LINEBREAK", "KTHXBYE", "BUHBYE", None]:
+            if self.tokens.current()["type"] in ["LINEBREAK", "KTHXBYE", "BUHBYE", None, "EOF"]:
                 raise ParseError("Expected expression after 'AN' in SMOOSH", self.tokens.current())
             exprs.append(self.parse_expr())
+        
+        # Skip comments before checking for missing separator
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
+        
+        current_type = self.tokens.current()["type"]
+        
+        # if we see PLUS, it's an error (only for VISIBLE)
+        if current_type == "PLUS":
+            raise ParseError("'+' is only allowed in VISIBLE statements, use 'AN' to separate expressions in SMOOSH", self.tokens.current())
+        
+        if current_type in expression_start_types:
+            peek_token = self.tokens.peek(1)
+            if peek_token and peek_token.get("type") == "AN":
+                # pattern: expr expr AN - missing AN between first two expressions
+                raise ParseError("Expected 'AN' between expressions in SMOOSH", self.tokens.current())
+        
+        if self.tokens.current()["type"] == "LINEBREAK":
+            self.tokens.advance()
+        self.tokens.skip_comments()
+        self.tokens.skip_multiple_line_comments()
 
         # optional MKAY to close SMOOSH (accept but not required)
         if self.tokens.current()["type"] == "MKAY":
@@ -570,6 +646,16 @@ class Parser:
         while self.tokens.current()["type"] == "OMG":
             self.tokens.advance()
             literal = self.parse_expr()  # usually a literal
+            
+            # validate that switch case literal is a YARN literal
+            if not isinstance(literal, dict):
+                raise ParseError("Switch case must use a YARN literal, not an expression", self.tokens.current())
+            if literal.get("node_type") != "Literal":
+                raise ParseError("Switch case must use a YARN literal, not an expression", self.tokens.current())
+            if literal.get("data_type") != "YARN_LITERAL":
+                literal_type = literal.get("data_type", "unknown")
+                raise ParseError(f"Switch case must use a YARN literal, found {literal_type} literal", self.tokens.current())
+            
             while self.tokens.current()["type"] == "LINEBREAK":
                 self.tokens.advance()
             statements = self.parse_statement_list(until_keywords=["OMG", "OMGWTF", "OIC"])
@@ -594,17 +680,17 @@ class Parser:
         """Parse switch when expression comes before WTF?"""
         return self.parse_switch(switch_value_expr=switch_value_expr)
     
-    def parse_increment(self): 
-        start = self.tokens.current()
-        self.tokens.expect("UPPIN")
-        var_token = self.tokens.expect("IDENTIFIER")
-        return create_node("Increment", variable=var_token["value"], start_line=start["line"])
+    # def parse_increment(self): 
+    #     start = self.tokens.current()
+    #     self.tokens.expect("UPPIN")
+    #     var_token = self.tokens.expect("IDENTIFIER")
+    #     return create_node("Increment", variable=var_token["value"], start_line=start["line"])
 
-    def parse_decrement(self):
-        start = self.tokens.current()
-        self.tokens.expect("NERFIN")
-        var_token = self.tokens.expect("IDENTIFIER")
-        return create_node("Decrement", variable=var_token["value"], start_line=start["line"])
+    # def parse_decrement(self):
+    #     start = self.tokens.current()
+    #     self.tokens.expect("NERFIN")
+    #     var_token = self.tokens.expect("IDENTIFIER")
+    #     return create_node("Decrement", variable=var_token["value"], start_line=start["line"])
 
     def parse_loop(self): #okay 
         start = self.tokens.current()
