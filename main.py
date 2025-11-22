@@ -32,7 +32,7 @@ def main():
         if not input_file.is_absolute():
             input_file = project_root / input_file
     else:
-        input_file = src_dir / "sample_code2.lol"
+        input_file = src_dir / "functions.lol"
     
     if not input_file.exists():
         print(f"Error: File '{input_file}' not found.")
@@ -76,10 +76,14 @@ def main():
         print(ast["message"], file=sys.stderr)
         sys.exit(1)
     else:
-        if len(ast["prelude"]) > 0:
+        if len(ast.get("prelude")) > 0:
             for func in ast.get("prelude"):
                 interpreter.evaluate(func,env)
-                print(env.func_table)
+                # print(env.func_table)
+        if len(ast.get("postlude")) > 0:
+            for func in ast.get("postlude"):
+                interpreter.evaluate(func,env)
+                # print(env.func_table)
         # evaluate declarations
         for dec in ast["wazzup"]["declarations"]:
             interpreter.evaluate(dec, env)

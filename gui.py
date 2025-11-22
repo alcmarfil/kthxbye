@@ -567,6 +567,30 @@ class LOLCodeGUI:
                 env = Environment() # Create variable storage
                 interpreter = Interpreter() # Create interpreter
                 
+                prelude_section = ast.get("prelude", [])
+                if prelude_section:
+                    for func in prelude_section:
+                        try: 
+                            interpreter.evaluate(func, env)
+                            # update symbol table after prelude functions
+                            self.update_symbol_table(env)
+                            self.root.update()
+                        except RuntimeError as e:
+                            error_msg = f"Runtime Error in prelude: {e.message}\n"
+                            self.console.insert("end", error_msg, "error")
+                            self.console.see("end")
+                postlude_section = ast.get("postlude", [])
+                if postlude_section:
+                    for func in postlude_section:
+                        try:
+                            interpreter.evaluate(func, env)
+                            # update symbol table after postlude functions
+                            self.update_symbol_table(env)
+                            self.root.update()
+                        except RuntimeError as e:
+                            error_msg = f"Runtime Error in postlude: {e.message}\n"
+                            self.console.insert("end", error_msg, "error")
+                            self.console.see("end")
                 # Evaluate declarations (from WAZZUP section)
                 wazzup_section = ast.get("wazzup")
                 if wazzup_section:
