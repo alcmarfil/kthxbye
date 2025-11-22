@@ -659,9 +659,11 @@ class Interpreter:
                 self.evaluate(line, local_env)
 
         except ReturnValue as ret_value:
-            env.set_var("IT", ret_value)
+            env.set_var("IT", ret_value.value)
             return ret_value.value
-    
+
+        # Function completed without explicit return - set IT to None
+        env.set_var("IT", None)
         return None
 
 
