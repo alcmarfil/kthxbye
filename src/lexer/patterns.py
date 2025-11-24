@@ -9,7 +9,7 @@ PATTERNS = {
     "KTHXBYE": re.compile(r"\bKTHXBYE\b"),
 
     # Comments
-    "BTW": re.compile(r"\bBTW.*"),
+    "BTW": re.compile(r"\bBTW .*"),
     "MULTI_LINE_COMMENT": re.compile(r"\bOBTW\b(.*?)\bTLDR\b", re.DOTALL),
 
     # Variable declaration

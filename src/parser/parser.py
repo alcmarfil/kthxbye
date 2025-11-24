@@ -53,8 +53,8 @@ class Parser:
         self.tokens.skip_comments()
         self.tokens.skip_multiple_line_comments()
 
-        # prelude: functions after HAI but before WAZZUP
-        prelude = self.parse_function_list()
+        # prelude: functions before HAI but before WAZZUP
+        # prelude = self.parse_function_list()
 
         # wazzup section (optional)
         wazzup = self.parse_wazzup_section()
@@ -71,7 +71,7 @@ class Parser:
         self.tokens.skip_multiple_line_comments()
         
         # postlude: functions after main statements but before KTHXBYE
-        postlude = self.parse_function_list()
+        # postlude = self.parse_function_list()
 
         self.tokens.skip_comments()
         self.tokens.skip_multiple_line_comments()
@@ -95,10 +95,10 @@ class Parser:
         # return the program node
         return create_node(
             "Program",
-            prelude=pre_program_functions + prelude,  # functions before and after HAI (before WAZZUP)
+            prelude=pre_program_functions,  # functions before and after HAI (before WAZZUP)
             wazzup=wazzup,
             statements=statements,
-            postlude=postlude + post_program_functions,  # functions after statements and after KTHXBYE
+            postlude= post_program_functions,  # functions after statements and after KTHXBYE
             start_line=start["line"]
         )
 
@@ -116,6 +116,11 @@ class Parser:
     # <wazzup_section> ::= WAZZUP <linebreak> <declaration_list> <linebreak> BUHBYE | <empty>
     def parse_wazzup_section(self):
         self.tokens.skip_comments()
+        if self.tokens.current()["type"] == "I_HAS_A":
+            raise  ParseError(
+                    f"Unexpected token '{self.tokens.current()['type']}' Variable Declarations are only allowed inside WAZZUP.",
+                    self.tokens.current()
+                )
         if self.tokens.current()["type"] == "WAZZUP":
             self.tokens.advance()
 
@@ -227,8 +232,6 @@ class Parser:
             return self.parse_statement()
         elif current_type == "VISIBLE":
             return self.parse_print()
-        elif current_type == "I_HAS_A":
-            return self.parse_declaration()
         elif current_type == "IDENTIFIER":
             token_value = self.tokens.current()["value"]
 
