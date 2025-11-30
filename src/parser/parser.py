@@ -366,11 +366,30 @@ class Parser:
             # check if next token is a statement keyword. if yes, we're probably at a new statement
             peek_token = self.tokens.peek(1)
             if peek_token and peek_token.get("type") not in statement_keywords:
-                current_token = self.tokens.current()
-                raise ParseError(
-                    f"Expected '+' between expressions in VISIBLE statement (found '{current_token.get('value', current_type)}' at line {current_token.get('line', '?')})",
-                    current_token
-                )
+                # Check further ahead to see if this expression is followed by O_RLY or WTF
+                i = 1
+                found_statement_marker = False
+                while i <= 20:  # look ahead up to 20 tokens to find O_RLY or other markers
+                    peek = self.tokens.peek(i)
+                    if not peek:
+                        break
+                    peek_type = peek.get("type")
+                    if peek_type in ["O_RLY", "WTF", "YA_RLY", "MEBBE", "NO_WAI", "OIC"]:
+                        found_statement_marker = True
+                        break
+                    if peek_type in ["LINEBREAK", "EOF"]:
+                        break
+                    if peek_type in statement_keywords:
+                        found_statement_marker = True
+                        break
+                    i += 1
+                
+                if not found_statement_marker:
+                    current_token = self.tokens.current()
+                    raise ParseError(
+                        f"Expected '+' between expressions in VISIBLE statement (found '{current_token.get('value', current_type)}' at line {current_token.get('line', '?')})",
+                        current_token
+                    )
         
         # skip comments and linebreaks (after validation)
         self.tokens.skip_comments()

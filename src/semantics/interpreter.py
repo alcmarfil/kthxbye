@@ -467,7 +467,9 @@ class Interpreter:
             if "statements" not in maybe_block:
                 raise RuntimeError("MEBBE block must have 'statements'", node)
             
-            if self.evaluate(maybe_block["condition"], env):
+            maybe_condition = self.evaluate(maybe_block["condition"], env)
+            maybe_condition = self.typecast_troof(maybe_condition)
+            if maybe_condition:
                 for statement in maybe_block["statements"]:
                     self.evaluate(statement, env)
                 return None
