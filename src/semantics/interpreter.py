@@ -505,8 +505,9 @@ class Interpreter:
             else:
                 raise RuntimeError("Switch statement missing switch value expression and IT variable not set", node)
         
-        # compare IT with each case 
+        # compare IT with each case
         matched = False
+        fall_through = False
         for case in cases:
             # for validtation
             if not isinstance(case, dict):
@@ -515,19 +516,25 @@ class Interpreter:
                 raise RuntimeError("Switch case must have 'literal'", node)
             if "statements" not in case:
                 raise RuntimeError("Switch case must have 'statements'", node)
-            
+
             case_literal = self.evaluate(case["literal"], env)
-            if switch_value == case_literal:
+            should_execute = (switch_value == case_literal) or fall_through
+
+            if should_execute:
                 matched = True
-                # execute matching case statements
+                fall_through = False  # Reset fall-through for next case
+
+                # execute case statements
                 try:
                     if not isinstance(case["statements"], list):
                         raise RuntimeError("Switch case statements must be a list", node)
                     for statement in case["statements"]:
                         self.evaluate(statement, env)
+                    # If we reach here, GTFO was not encountered - enable fall-through to next case
+                    fall_through = True
                 except BreakException:
-                    pass #break out of switch
-                break  # exit switch after matching case
+                    # GTFO encountered - exit switch, no fall-through
+                    break
         
         # execute default case (OMGWTF) pag walang case na match
         if not matched and default:
